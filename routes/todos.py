@@ -37,6 +37,8 @@ def create_todo():
     title = data.get('title', '').strip()
     if not title:
         return jsonify({'error': 'Title is required'}), 400
+    if len(title) > 200:
+        return jsonify({'error': 'Title must be 200 characters or less'}), 400
     try:
         task_id = create_task(user_id, data)
         task = get_task_by_id(task_id, user_id)
@@ -51,6 +53,13 @@ def update_todo(task_id):
     data = request.get_json()
     if not data:
         return jsonify({'error': 'No data provided'}), 400
+    if 'title' in data:
+        title = data.get('title', '').strip()
+        if not title:
+            return jsonify({'error': 'Title is required'}), 400
+        if len(title) > 200:
+            return jsonify({'error': 'Title must be 200 characters or less'}), 400
+        data['title'] = title
     try:
         updated = update_task(task_id, user_id, data)
         if not updated:

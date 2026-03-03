@@ -18,7 +18,9 @@ def register():
         return jsonify({'error': 'Username must be at least 3 characters'}), 400
     if len(password) < 6:
         return jsonify({'error': 'Password must be at least 6 characters'}), 400
-    if '@' not in email:
+    # Validate email format: must have exactly one @, with non-empty local and domain parts
+    at_idx = email.find('@')
+    if at_idx <= 0 or at_idx == len(email) - 1 or '.' not in email[at_idx:] or email.endswith('.'):
         return jsonify({'error': 'Invalid email address'}), 400
     try:
         if get_user_by_username(username):

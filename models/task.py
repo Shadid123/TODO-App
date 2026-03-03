@@ -19,15 +19,13 @@ def get_all_tasks(user_id, filters=None):
                 query += " AND completed = %s"
                 params.append(filters['completed'])
             sort_by = filters.get('sort_by', 'created_at')
-            allowed_sorts = ['due_date', 'priority', 'created_at', 'updated_at']
-            if sort_by not in allowed_sorts:
-                sort_by = 'created_at'
-            if sort_by == 'priority':
-                query += " ORDER BY FIELD(priority, 'Urgent', 'High', 'Medium', 'Low')"
-            elif sort_by == 'due_date':
-                query += " ORDER BY due_date IS NULL, due_date ASC"
-            else:
-                query += f" ORDER BY {sort_by} DESC"
+            sort_clauses = {
+                'due_date': " ORDER BY due_date IS NULL, due_date ASC",
+                'priority': " ORDER BY FIELD(priority, 'Urgent', 'High', 'Medium', 'Low')",
+                'created_at': " ORDER BY created_at DESC",
+                'updated_at': " ORDER BY updated_at DESC",
+            }
+            query += sort_clauses.get(sort_by, " ORDER BY created_at DESC")
         else:
             query += " ORDER BY created_at DESC"
 
