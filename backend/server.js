@@ -20,11 +20,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session(config.session));
 
 // Static files from frontend
-app.use(express.static(path.join(__dirname, '../frontend/static')));
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 // View engine
 app.set('view engine', 'html');
-app.set('views', path.join(__dirname, '../frontend/templates'));
+app.set('views', path.join(__dirname, '../frontend'));
 app.engine('html', require('ejs').renderFile);
 
 // Routes
@@ -34,11 +34,11 @@ app.use('/student', studentRoutes);
 
 // Root routes
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/templates/index.html'));
+  res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
 app.get('/app', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/templates/app.html'));
+  res.sendFile(path.join(__dirname, '../frontend/app.html'));
 });
 
 // Health check
