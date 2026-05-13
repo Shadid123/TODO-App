@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
+const rateLimit = require('express-rate-limit');
 const path = require('path');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -19,6 +20,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Session Configuration
 app.use(session(config.session));
 
+const pageRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 100,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false
+});
+
 // Static files from frontend
 app.use(express.static(path.join(__dirname, '../frontend')));
 
@@ -33,11 +41,11 @@ app.use('/api/todos', todoRoutes);
 app.use('/student', studentRoutes);
 
 // Root routes
-app.get('/', (req, res) => {
+app.get('/', pageRateLimiter, (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
-app.get('/app', (req, res) => {
+app.get('/app', pageRateLimiter, (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/app.html'));
 });
 
