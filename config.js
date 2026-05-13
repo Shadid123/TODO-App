@@ -17,7 +17,7 @@ const config = {
     password: process.env.DB_PASSWORD || '',
     database: process.env.DB_NAME || 'todo_app'
   },
-  sessionSecret: process.env.SESSION_SECRET || process.env.SECRET_KEY || 'dev-secret-key-change-in-production'
+  sessionSecret: process.env.SESSION_SECRET || 'dev-secret-key-change-in-production'
 };
 
 if (config.sessionSecret === 'dev-secret-key-change-in-production') {
@@ -54,7 +54,8 @@ const sessionOptions = {
     secure: config.nodeEnv === 'production',
     sameSite: 'lax',
     maxAge: 86400000
-  }
+  },
+  proxy: true
 };
 
 module.exports = {

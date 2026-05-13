@@ -6,6 +6,7 @@ const {
   getUserById,
   verifyPassword
 } = require('../models/user');
+const { sessionOptions } = require('../config');
 const { loginRequired } = require('../middleware/auth');
 
 const router = express.Router();
@@ -95,7 +96,7 @@ router.post('/login', async (req, res) => {
 
 router.post('/logout', (req, res) => {
   req.session.destroy(() => {
-    res.clearCookie('session');
+    res.clearCookie(sessionOptions.name || 'session');
     res.status(200).json({ message: 'Logged out successfully' });
   });
 });

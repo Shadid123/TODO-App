@@ -3,7 +3,7 @@ function loginRequired(req, res, next) {
     return res.status(401).json({ error: 'Authentication required' });
   }
 
-  return next();
+  next();
 }
 
 module.exports = {

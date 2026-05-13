@@ -11,7 +11,7 @@ function normalizeDate(value) {
   }
 
   const asString = String(value);
-  return asString.includes(' ') ? asString.replace(' ', 'T') : asString;
+  return asString.includes(' ') ? asString.replace(/\s/g, 'T') : asString;
 }
 
 router.get('/', loginRequired, async (req, res) => {

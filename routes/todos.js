@@ -17,7 +17,9 @@ router.get('/', loginRequired, async (req, res) => {
   if (req.query.category) filters.category = req.query.category;
   if (req.query.priority) filters.priority = req.query.priority;
   if (req.query.sort_by) filters.sort_by = req.query.sort_by;
-  if (req.query.completed !== undefined) filters.completed = req.query.completed.toLowerCase() === 'true';
+  if (req.query.completed !== undefined) {
+    filters.completed = String(req.query.completed).toLowerCase() === 'true';
+  }
 
   try {
     const tasks = await getAllTasks(req.session.user_id, filters);
