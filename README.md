@@ -1,6 +1,6 @@
 # TodoApp
 
-A full-featured Todo application built with Flask, MySQL, and Vanilla JavaScript.
+A full-featured Todo application built with Node.js, Express, MySQL, and Vanilla JavaScript.
 
 ## Features
 
@@ -15,41 +15,42 @@ A full-featured Todo application built with Flask, MySQL, and Vanilla JavaScript
 ## Tech Stack
 
 - **Frontend**: HTML, CSS, Vanilla JavaScript
-- **Backend**: Python (Flask)
-- **Database**: MySQL (via mysql-connector-python)
+- **Backend**: Node.js (Express)
+- **Database**: MySQL (via mysql2)
 
 ## Project Structure
 
 ```
 TODO-App/
-├── app.py              # Main Flask application
-├── config.py           # Configuration & DB connection
-├── requirements.txt    # Python dependencies
-├── .env.example        # Environment variable template
+├── server.js            # Main Express application
+├── config.js            # Configuration & DB/session setup
+├── package.json         # Node dependencies
+├── .env.example         # Environment variable template
 ├── db/
-│   └── schema.sql      # Database schema
-├── models/             # Database models
-│   ├── user.py
-│   └── task.py
-├── routes/             # API route blueprints
-│   ├── auth.py
-│   └── todos.py
-├── middleware/         # Middleware (auth decorator)
-│   └── auth.py
-├── static/             # Frontend assets
+│   └── schema.sql       # Database schema
+├── models/
+│   ├── user.js
+│   └── task.js
+├── routes/
+│   ├── auth.js
+│   ├── todos.js
+│   └── student.js
+├── middleware/
+│   └── auth.js
+├── static/              # Frontend assets
 │   ├── css/style.css
 │   └── js/
 │       ├── auth.js
 │       └── app.js
-└── templates/          # HTML templates
-    ├── index.html      # Login/Register page
-    └── app.html        # Main dashboard
+└── templates/           # HTML templates
+    ├── index.html
+    └── app.html
 ```
 
 ## Setup Instructions
 
 ### Prerequisites
-- Python 3.8+
+- Node.js 18+
 - MySQL 5.7+ or 8.0+
 
 ### 1. Clone the repository
@@ -58,31 +59,25 @@ git clone <repository-url>
 cd TODO-App
 ```
 
-### 2. Create a virtual environment
+### 2. Install dependencies
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+npm install
 ```
 
-### 3. Install dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Configure environment variables
+### 3. Configure environment variables
 ```bash
 cp .env.example .env
 # Edit .env with your database credentials
 ```
 
-### 5. Set up the database
+### 4. Set up the database
 ```bash
 mysql -u root -p < db/schema.sql
 ```
 
-### 6. Run the application
+### 5. Run the application
 ```bash
-python app.py
+npm start
 ```
 
 Open http://localhost:5000 in your browser.
@@ -97,9 +92,10 @@ Open http://localhost:5000 in your browser.
 | GET | /api/auth/me | Get current user info |
 | GET | /api/todos/ | Get all todos (with filters) |
 | POST | /api/todos/ | Create a new todo |
-| PUT | /api/todos/\<id\> | Update a todo |
-| DELETE | /api/todos/\<id\> | Delete a todo |
-| PUT | /api/todos/\<id\>/toggle | Toggle completion status |
+| PUT | /api/todos/<id> | Update a todo |
+| DELETE | /api/todos/<id> | Delete a todo |
+| PUT | /api/todos/<id>/toggle | Toggle completion status |
+| GET | /student/ | Get student info |
 
 ## Query Parameters for GET /api/todos/
 
