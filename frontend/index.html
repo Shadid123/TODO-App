@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Modern Todo App</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="bg-overlay"></div>
+    <main class="container">
+      <header class="topbar glass">
+        <h1>Todo App</h1>
+        <div class="topbar-actions">
+          <button id="themeToggle" class="btn btn-secondary">🌙 Dark</button>
+          <button id="logoutBtn" class="btn btn-danger hidden">Sign Out</button>
+        </div>
+      </header>
+
+      <section id="authSection" class="grid-auth">
+        <article class="glass card">
+          <h2>Create Account</h2>
+          <form id="signupForm" class="stack">
+            <input id="signupName" type="text" placeholder="Full name" required />
+            <input id="signupEmail" type="email" placeholder="Email" required />
+            <input id="signupPassword" type="password" placeholder="Password" minlength="6" required />
+            <button class="btn" type="submit">Create Account</button>
+          </form>
+        </article>
+
+        <article class="glass card">
+          <h2>Sign In</h2>
+          <form id="loginForm" class="stack">
+            <input id="loginEmail" type="email" placeholder="Email" required />
+            <input id="loginPassword" type="password" placeholder="Password" required />
+            <button class="btn" type="submit">Login</button>
+          </form>
+        </article>
+      </section>
+
+      <section id="appSection" class="hidden">
+        <div class="grid-main">
+          <article class="glass card">
+            <h2 id="welcomeText">Welcome</h2>
+            <form id="taskForm" class="stack">
+              <input id="taskId" type="hidden" />
+              <input id="taskTitle" type="text" placeholder="Task title" required />
+              <textarea id="taskDescription" rows="3" placeholder="Task description" required></textarea>
+              <div class="row-2">
+                <input id="taskDate" type="date" required />
+                <input id="taskTime" type="time" required />
+              </div>
+              <div class="row-2">
+                <select id="taskPriority" required>
+                  <option value="">Priority</option>
+                  <option value="Low">Low</option>
+                  <option value="Medium">Medium</option>
+                  <option value="High">High</option>
+                </select>
+                <input id="taskCategory" type="text" placeholder="Category (Study/Work/etc.)" required />
+              </div>
+              <button id="taskSubmitBtn" class="btn" type="submit">Add Task</button>
+            </form>
+          </article>
+
+          <article class="glass card">
+            <h2>Task Tools</h2>
+            <div class="stack">
+              <input id="searchInput" type="search" placeholder="Search by title or description" />
+              <div class="filter-buttons">
+                <button class="btn btn-secondary filter-btn active" data-filter="all">All</button>
+                <button class="btn btn-secondary filter-btn" data-filter="completed">Completed</button>
+                <button class="btn btn-secondary filter-btn" data-filter="pending">Pending</button>
+                <button class="btn btn-secondary filter-btn" data-filter="today">Today</button>
+              </div>
+              <div class="progress-wrap">
+                <div class="progress-label">
+                  <span>Progress</span>
+                  <span id="progressText">0%</span>
+                </div>
+                <div class="progress-track">
+                  <div id="progressFill" class="progress-fill"></div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="glass card">
+            <h2>Pomodoro Timer</h2>
+            <p id="pomodoroMode">Work Session</p>
+            <p id="pomodoroTime" class="timer">25:00</p>
+            <div class="row-3">
+              <button id="pomodoroStart" class="btn">Start</button>
+              <button id="pomodoroPause" class="btn btn-secondary">Pause</button>
+              <button id="pomodoroReset" class="btn btn-danger">Reset</button>
+            </div>
+          </article>
+        </div>
+
+        <article class="glass card">
+          <div class="calendar-header">
+            <h2>Calendar View</h2>
+            <div class="row-3">
+              <button id="prevMonth" class="btn btn-secondary">◀</button>
+              <span id="calendarMonth"></span>
+              <button id="nextMonth" class="btn btn-secondary">▶</button>
+            </div>
+          </div>
+          <div id="calendarGrid" class="calendar-grid"></div>
+        </article>
+
+        <article class="glass card">
+          <h2>Tasks (Drag to sort)</h2>
+          <div id="taskList" class="task-list"></div>
+        </article>
+      </section>
+    </main>
+
+    <div id="toast" class="toast hidden"></div>
+    <script src="./script.js"></script>
+  </body>
+</html>
