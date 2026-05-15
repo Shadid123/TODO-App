@@ -66,7 +66,8 @@
 
   init();
 
-  function init() {
+  async function init() {
+    await migrateLegacyUsers();
     applyTheme();
     bindEvents();
     updatePomodoroFromElapsedTime();
@@ -134,15 +135,9 @@
     const email = els.loginEmail.value.trim().toLowerCase();
     const password = els.loginPassword.value;
     const passwordHash = await hashPassword(password);
-    const user = users.find((u) => u.email === email && (u.passwordHash === passwordHash || u.password === password));
+    const user = users.find((u) => u.email === email && u.passwordHash === passwordHash);
 
     if (!user) return toast('Invalid credentials');
-
-    if (!user.passwordHash) {
-      user.passwordHash = passwordHash;
-      delete user.password;
-      write(KEYS.users, users);
-    }
 
     currentUserId = user.id;
     localStorage.setItem(KEYS.currentUser, currentUserId);
@@ -401,7 +396,10 @@
       if (isToday) cell.classList.add('cal-today');
 
       const hasTasks = taskCountByDate[dateStr] > 0;
-      cell.innerHTML = `<div>${day}</div>${hasTasks ? `<small>${taskCountByDate[dateStr]} task(s)</small><div class="dot"></div>` : ''}`;
+      const taskInfoHtml = hasTasks
+        ? `<small>${taskCountByDate[dateStr]} task(s)</small><div class="dot"></div>`
+        : '';
+      cell.innerHTML = `<div>${day}</div>${taskInfoHtml}`;
       els.calendarGrid.appendChild(cell);
     }
   }
@@ -546,8 +544,27 @@
     return `${Date.now()}`;
   }
 
+  async function migrateLegacyUsers() {
+    let changed = false;
+    for (const user of users) {
+      if (user.password && !user.passwordHash) {
+        user.passwordHash = await hashPassword(user.password);
+        delete user.password;
+        changed = true;
+      }
+    }
+    if (changed) write(KEYS.users, users);
+  }
+
   async function hashPassword(password) {
-    if (!window.crypto || !window.crypto.subtle) return password;
+    if (!window.crypto || !window.crypto.subtle) {
+      let hash = 2166136261;
+      for (let i = 0; i < password.length; i += 1) {
+        hash ^= password.charCodeAt(i);
+        hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
+      }
+      return `fallback-${(hash >>> 0).toString(16)}`;
+    }
     const data = new TextEncoder().encode(password);
     const digest = await window.crypto.subtle.digest('SHA-256', data);
     const bytes = new Uint8Array(digest);
