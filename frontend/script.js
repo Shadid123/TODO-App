@@ -13,6 +13,7 @@
   const WORK_SECONDS = 25 * 60;
   const BREAK_SECONDS = 5 * 60;
   const REMINDER_WINDOW_MINUTES = 30;
+  const REMINDER_CHECK_INTERVAL_MS = 60000;
   const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   let users = read(KEYS.users, []);
@@ -22,6 +23,7 @@
   let selectedFilter = 'all';
   let searchTerm = '';
   let calendarDate = new Date();
+  let uidCounter = 0;
   let pomodoro = read(KEYS.pomodoro, { mode: 'work', secondsLeft: WORK_SECONDS, running: false, updatedAt: Date.now() });
   let timerId = null;
 
@@ -115,6 +117,7 @@
     const email = els.signupEmail.value.trim().toLowerCase();
     const password = els.signupPassword.value;
     const passwordHash = await hashPassword(password);
+    if (!passwordHash) return toast('Secure password hashing is not supported in this browser.');
 
     if (users.some((u) => u.email === email)) {
       return toast('Account already exists for this email');
@@ -135,6 +138,7 @@
     const email = els.loginEmail.value.trim().toLowerCase();
     const password = els.loginPassword.value;
     const passwordHash = await hashPassword(password);
+    if (!passwordHash) return toast('Secure password hashing is not supported in this browser.');
     const user = users.find((u) => u.email === email && u.passwordHash === passwordHash);
 
     if (!user) return toast('Invalid credentials');
@@ -478,7 +482,7 @@
   }
 
   function startReminderLoop() {
-    setInterval(checkReminders, 60000);
+    setInterval(checkReminders, REMINDER_CHECK_INTERVAL_MS);
   }
 
   function checkReminders() {
@@ -541,7 +545,8 @@
       window.crypto.getRandomValues(bytes);
       return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
     }
-    return `${Date.now()}`;
+    uidCounter += 1;
+    return `${Date.now()}-${uidCounter}`;
   }
 
   async function migrateLegacyUsers() {
@@ -557,14 +562,7 @@
   }
 
   async function hashPassword(password) {
-    if (!window.crypto || !window.crypto.subtle) {
-      let hash = 2166136261;
-      for (let i = 0; i < password.length; i += 1) {
-        hash ^= password.charCodeAt(i);
-        hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
-      }
-      return `fallback-${(hash >>> 0).toString(16)}`;
-    }
+    if (!window.crypto || !window.crypto.subtle) return '';
     const data = new TextEncoder().encode(password);
     const digest = await window.crypto.subtle.digest('SHA-256', data);
     const bytes = new Uint8Array(digest);
