@@ -12,6 +12,7 @@
 
   const WORK_SECONDS = 25 * 60;
   const BREAK_SECONDS = 5 * 60;
+  const REMINDER_WINDOW_MINUTES = 30;
   const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   let users = read(KEYS.users, []);
@@ -107,17 +108,18 @@
     els.pomodoroReset.addEventListener('click', resetPomodoro);
   }
 
-  function onSignup(e) {
+  async function onSignup(e) {
     e.preventDefault();
     const name = els.signupName.value.trim();
     const email = els.signupEmail.value.trim().toLowerCase();
     const password = els.signupPassword.value;
+    const passwordHash = await hashPassword(password);
 
     if (users.some((u) => u.email === email)) {
       return toast('Account already exists for this email');
     }
 
-    const newUser = { id: uid(), name, email, password };
+    const newUser = { id: uid(), name, email, passwordHash };
     users.push(newUser);
     write(KEYS.users, users);
     currentUserId = newUser.id;
@@ -127,13 +129,20 @@
     renderAuthState();
   }
 
-  function onLogin(e) {
+  async function onLogin(e) {
     e.preventDefault();
     const email = els.loginEmail.value.trim().toLowerCase();
     const password = els.loginPassword.value;
-    const user = users.find((u) => u.email === email && u.password === password);
+    const passwordHash = await hashPassword(password);
+    const user = users.find((u) => u.email === email && (u.passwordHash === passwordHash || u.password === password));
 
     if (!user) return toast('Invalid credentials');
+
+    if (!user.passwordHash) {
+      user.passwordHash = passwordHash;
+      delete user.password;
+      write(KEYS.users, users);
+    }
 
     currentUserId = user.id;
     localStorage.setItem(KEYS.currentUser, currentUserId);
@@ -484,7 +493,7 @@
     tasks.forEach((task) => {
       const taskTime = new Date(`${task.date}T${task.time || '00:00'}`);
       const diffMin = Math.floor((taskTime - now) / 60000);
-      const shouldNotify = diffMin >= 0 && diffMin <= 30;
+      const shouldNotify = diffMin >= 0 && diffMin <= REMINDER_WINDOW_MINUTES;
 
       if (shouldNotify && !sentForUser[task.id]) {
         notify(`Reminder: "${task.title}" is due at ${task.time}`);
@@ -526,7 +535,23 @@
   }
 
   function uid() {
-    return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+      return window.crypto.randomUUID();
+    }
+    if (window.crypto && typeof window.crypto.getRandomValues === 'function') {
+      const bytes = new Uint8Array(16);
+      window.crypto.getRandomValues(bytes);
+      return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+    }
+    return `${Date.now()}`;
+  }
+
+  async function hashPassword(password) {
+    if (!window.crypto || !window.crypto.subtle) return password;
+    const data = new TextEncoder().encode(password);
+    const digest = await window.crypto.subtle.digest('SHA-256', data);
+    const bytes = new Uint8Array(digest);
+    return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
   }
 
   function read(key, fallback) {
