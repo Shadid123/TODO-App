@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Todo App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Authentication Container -->
+    <div id="authContainer" class="auth-container">
+        <!-- Login Form -->
+        <div id="signInForm" class="auth-form">
+            <div class="auth-card">
+                <h1>Welcome Back</h1>
+                <p class="auth-subtitle">Sign in to your account</p>
+                
+                <form id="signInFormElement">
+                    <div class="form-group">
+                        <label for="signInEmail">Email Address</label>
+                        <input type="email" id="signInEmail" placeholder="Enter your email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="signInPassword">Password</label>
+                        <input type="password" id="signInPassword" placeholder="Enter your password" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+                </form>
+                
+                <p class="auth-toggle">Don't have an account? 
+                    <a href="#" onclick="toggleAuthForms()">Sign Up</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Signup Form -->
+        <div id="signupForm" class="auth-form hidden">
+            <div class="auth-card">
+                <h1>Create Account</h1>
+                <p class="auth-subtitle">Join us to manage your tasks</p>
+                
+                <form id="signupFormElement">
+                    <div class="form-group">
+                        <label for="signupName">Full Name</label>
+                        <input type="text" id="signupName" placeholder="Enter your name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="signupEmail">Email Address</label>
+                        <input type="email" id="signupEmail" placeholder="Enter your email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="signupPassword">Password</label>
+                        <input type="password" id="signupPassword" placeholder="Create a password" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" placeholder="Confirm password" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+                </form>
+                
+                <p class="auth-toggle">Already have an account? 
+                    <a href="#" onclick="toggleAuthForms()">Sign In</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="appContainer" class="app-container hidden">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <h1 class="app-title">📝 TaskFlow</h1>
+                    <p class="user-greeting">Welcome, <span id="userName"></span></p>
+                </div>
+                
+                <div class="header-center">
+                    <div class="theme-toggle">
+                        <button id="themeToggle" class="btn-icon" title="Toggle dark/light mode">
+                            <span id="themeIcon">🌙</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <button id="logoutBtn" class="btn btn-secondary">Sign Out</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="app-content">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <nav class="sidebar-nav">
+                    <button class="nav-btn active" data-view="today">
+                        <span class="nav-icon">📅</span>
+                        <span class="nav-label">Today</span>
+                    </button>
+                    
+                    <button class="nav-btn" data-view="all">
+                        <span class="nav-icon">📋</span>
+                        <span class="nav-label">All Tasks</span>
+                    </button>
+                    
+                    <button class="nav-btn" data-view="completed">
+                        <span class="nav-icon">✅</span>
+                        <span class="nav-label">Completed</span>
+                    </button>
+                    
+                    <button class="nav-btn" data-view="pending">
+                        <span class="nav-icon">⏳</span>
+                        <span class="nav-label">Pending</span>
+                    </button>
+                    
+                    <button class="nav-btn" data-view="calendar">
+                        <span class="nav-icon">🗓️</span>
+                        <span class="nav-label">Calendar</span>
+                    </button>
+                    
+                    <button class="nav-btn" data-view="pomodoro">
+                        <span class="nav-icon">⏱️</span>
+                        <span class="nav-label">Pomodoro</span>
+                    </button>
+                </nav>
+                
+                <div class="sidebar-stats">
+                    <div class="stat-item">
+                        <div class="stat-label">Total Tasks</div>
+                        <div class="stat-value" id="totalTasks">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Completed</div>
+                        <div class="stat-value" id="completedTasks">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Progress</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Panel -->
+            <main class="main-panel">
+                <!-- Today View -->
+                <section id="todayView" class="view-section active">
+                    <div class="section-header">
+                        <h2>Today's Tasks</h2>
+                        <p class="section-date" id="todayDate"></p>
+                    </div>
+                    <div class="tasks-container" id="todayTasksContainer">
+                        <div class="empty-state">
+                            <p>No tasks for today. Add one to get started! 🚀</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- All Tasks View -->
+                <section id="allView" class="view-section hidden">
+                    <div class="section-header">
+                        <h2>All Tasks</h2>
+                        <div class="search-filter">
+                            <input type="text" id="searchInput" class="search-box" placeholder="Search tasks...">
+                            <select id="categoryFilter" class="filter-select">
+                                <option value="">All Categories</option>
+                                <option value="Study">Study</option>
+                                <option value="Work">Work</option>
+                                <option value="Personal">Personal</option>
+                                <option value="Shopping">Shopping</option>
+                                <option value="Health">Health</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="tasks-container" id="allTasksContainer">
+                        <div class="empty-state">
+                            <p>No tasks yet. Create your first task! ✨</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Completed Tasks View -->
+                <section id="completedView" class="view-section hidden">
+                    <div class="section-header">
+                        <h2>Completed Tasks</h2>
+                    </div>
+                    <div class="tasks-container" id="completedTasksContainer">
+                        <div class="empty-state">
+                            <p>No completed tasks yet. Complete a task to see it here! 🎉</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Pending Tasks View -->
+                <section id="pendingView" class="view-section hidden">
+                    <div class="section-header">
+                        <h2>Pending Tasks</h2>
+                    </div>
+                    <div class="tasks-container" id="pendingTasksContainer">
+                        <div class="empty-state">
+                            <p>All caught up! No pending tasks. 🎊</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Calendar View -->
+                <section id="calendarView" class="view-section hidden">
+                    <div class="section-header">
+                        <h2>Calendar</h2>
+                    </div>
+                    <div class="calendar-container">
+                        <div class="calendar-header">
+                            <button id="prevMonth" class="btn-icon">&lt;</button>
+                            <h3 id="currentMonth"></h3>
+                            <button id="nextMonth" class="btn-icon">&gt;</button>
+                        </div>
+                        <div id="calendar" class="calendar-grid"></div>
+                    </div>
+                    <div id="calendarTasksList" class="calendar-tasks-list">
+                        <div class="empty-state">
+                            <p>Select a date to view tasks</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Pomodoro View -->
+                <section id="pomodoroView" class="view-section hidden">
+                    <div class="section-header">
+                        <h2>Pomodoro Timer</h2>
+                    </div>
+                    <div class="pomodoro-container">
+                        <div class="pomodoro-card">
+                            <div class="timer-display">
+                                <span id="timerMinutes">25</span>:<span id="timerSeconds">00</span>
+                            </div>
+                            <p id="pomodoroPhase">Focus Time</p>
+                            
+                            <div class="pomodoro-controls">
+                                <button id="startTimer" class="btn btn-primary">Start</button>
+                                <button id="pauseTimer" class="btn btn-secondary">Pause</button>
+                                <button id="resetTimer" class="btn btn-secondary">Reset</button>
+                            </div>
+                            
+                            <div class="pomodoro-stats">
+                                <div class="stat-item">
+                                    <div class="stat-label">Sessions Completed</div>
+                                    <div class="stat-value" id="sessionsCompleted">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <!-- Right Panel - Add Task Form -->
+            <aside class="right-panel">
+                <div class="add-task-card">
+                    <h3>Add New Task</h3>
+                    
+                    <form id="addTaskForm">
+                        <div class="form-group">
+                            <label for="taskTitle">Task Title *</label>
+                            <input type="text" id="taskTitle" placeholder="Enter task title" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="taskDescription">Description</label>
+                            <textarea id="taskDescription" placeholder="Add task details..." rows="2"></textarea>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="taskDate">Date *</label>
+                                <input type="date" id="taskDate" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="taskTime">Time</label>
+                                <input type="time" id="taskTime">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="taskPriority">Priority *</label>
+                                <select id="taskPriority" required>
+                                    <option value="">Select priority</option>
+                                    <option value="Low">Low</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="taskCategory">Category *</label>
+                                <select id="taskCategory" required>
+                                    <option value="">Select category</option>
+                                    <option value="Study">Study</option>
+                                    <option value="Work">Work</option>
+                                    <option value="Personal">Personal</option>
+                                    <option value="Shopping">Shopping</option>
+                                    <option value="Health">Health</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-full">Add Task</button>
+                    </form>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- Task Modal (for editing) -->
+    <div id="taskModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Task</h2>
+                <button class="modal-close" onclick="closeTaskModal()">&times;</button>
+            </div>
+            
+            <form id="editTaskForm">
+                <div class="form-group">
+                    <label for="editTaskTitle">Task Title *</label>
+                    <input type="text" id="editTaskTitle" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editTaskDescription">Description</label>
+                    <textarea id="editTaskDescription" rows="3"></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editTaskDate">Date *</label>
+                        <input type="date" id="editTaskDate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editTaskTime">Time</label>
+                        <input type="time" id="editTaskTime">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editTaskPriority">Priority *</label>
+                        <select id="editTaskPriority" required>
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editTaskCategory">Category *</label>
+                        <select id="editTaskCategory" required>
+                            <option value="Study">Study</option>
+                            <option value="Work">Work</option>
+                            <option value="Personal">Personal</option>
+                            <option value="Shopping">Shopping</option>
+                            <option value="Health">Health</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeTaskModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer" class="notification-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
